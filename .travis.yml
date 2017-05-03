@@ -1,0 +1,31 @@
+sudo: required
+dist: precise
+language: python
+python:
+- "3.4"
+- "3.5"
+
+env:
+  global:
+  - secure: "U0ejbCVsdcHGB37hW+44CaMgWMw/fI/FkF/MlW8YGXfntJmUKINs6V3+BSOlT50W4dkglzuayxGj05WyXtp+ndmf4fawx7DFLgkdez9+6RAvT9YkK+j+UcUgwhuHsUIRwXCxsegs57T6VQpzrg3cgrP71MT5IXTq9Tt5iXLjTmZiKWzmS7IimEhaNpSsKC5MXP6Sbya741ab6kjrQk5rAes50J64iJb598Fj1mpF/jkggBsc6ZtEll3oXgLVrXc6k/cnPx0y5c02fLpinioN+scJo95TwPMIqrWLirFunGdl+J8Y90M+L1Mw8KYXorwvj1PKzstM4XeBSScimAyMEUeCIuck2W8U+1zuRvBddAuvMecLHQJp/vzhU9SNL7SyhLoe5InDPBuHmwb5nEHpg73aJJgfe6C/jJyOl9Lzr625o8ZCiH6WFpj7Il8Tt/nS5XNSROStdWNzq37QQ0e2t0+sqgQoVo4DgV9zbcg/GBVGLgEU3Z6YGuU+PzDYrqGFiqJJtsP26c6MD8Bjiy/xF/rNAAZoRl1GpDBXPZ5wzPLaNgNvwa3iUx36t3XgeAGw7g7K+ODoNEZfNE+JdkqSUgabY5EwP6isIULB+crDjmvAV+Z6LnhlUfpOxttfpva0Gj+Eou9jonqfwBbz39rWpz/DBs0IpYirUdxL/nGU3aY="
+  - PYPI_USER=niccokunzmann2
+
+install:
+- pip install -r requirements.txt -r test-requirements.txt twine wheel
+
+script:
+- pytest -m schul_cloud_url_crawler
+- python setup.py sdist bdist_wheel
+
+before_deploy:
+- scripts/create_pypi_login_for_travis.sh
+
+deploy:
+- provider: script
+  script: scripts/deploy.sh
+  on:
+    branch: master
+    condition: "\"$TRAVIS_PYTHON_VERSION\" == \"3.5\""
+  repo: schul-cloud/url-crawler
+  skip_cleanup: true
+
