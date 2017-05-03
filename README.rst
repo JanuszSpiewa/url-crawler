@@ -48,8 +48,8 @@ Authentication
 
 You can specify the authentication_ like this:
 
-- `--basic=username:password` for basic authentication
-- `--apikey=apikey` for api key authentication
+- ``--basic=username:password`` for basic authentication
+- ``--apikey=apikey`` for api key authentication
 
 Further Requirements
 --------------------
