@@ -15,6 +15,9 @@ The purpose of this crawler is:
 
   - Maybe we can create recommendations or a library for crawlers from this case.
 
+Requirements
+------------
+
 The crawler should work as follows:
 
 - Provide urls
@@ -29,6 +32,9 @@ The crawler should work as follows:
 
 The crawler must be invoked to crawl.
 
+Example
+~~~~~~~
+
 This example gets a ressource from the url and post it to the api.
 
 .. code:: shell
@@ -36,8 +42,17 @@ This example gets a ressource from the url and post it to the api.
     python3 -m ressource_url_crawler     \
             --api=http://localhost:8080  \
             --url=https://raw.githubusercontent.com/schul-cloud/ressources-api-v1/master/schemas/ressource/examples/valid/example-website.json
+            
+Authentication
+~~~~~~~~~~~~~~
 
-Further Requirements:
+You can specify the authentication_ like this:
+
+- `--basic=username:password` for basic authentication
+- `--apikey=apikey` for api key authentication
+
+Further Requirements
+--------------------
 
 - **The crawler does not post ressources twice.**
   This can be implemented by
@@ -51,3 +66,4 @@ Further Requirements:
 
 
 .. _ressources: https://github.com/schul-cloud/ressources-api-v1#ressources-api
+.. _authentication: https://github.com/schul-cloud/ressources-api-v1#authorization
