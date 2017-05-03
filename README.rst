@@ -57,13 +57,16 @@ Further Requirements
 - **The crawler does not post ressources twice.**
   This can be implemented by
   
-  - caching the ressources localy, to see if they changed
+  - caching the ressources locally, to see if they changed
   
     - compare ressource
     - compare timestamp
     
-  - removing the ressources from the database if they are updated after posting new ressources
-
+  - removing the ressources from the database if they are updated after posting new ressources.
+  
+This may require some form of state for the crawler.
+The state could be added to the ressources in a ``X-Ressources-Url-Crawler-Source`` field.
+This allows local caching and requires getting the objects from the database.
 
 .. _ressources: https://github.com/schul-cloud/ressources-api-v1#ressources-api
 .. _authentication: https://github.com/schul-cloud/ressources-api-v1#authorization
