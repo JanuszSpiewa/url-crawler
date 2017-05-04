@@ -40,9 +40,8 @@ This example gets a ressource from the url and post it to the api.
 
 .. code:: shell
 
-    python3 -m ressource_url_crawler     \
-            --api=http://localhost:8080  \
-            --url=https://raw.githubusercontent.com/schul-cloud/ressources-api-v1/master/schemas/ressource/examples/valid/example-website.json
+    python3 -m ressource_url_crawler http://localhost:8080 \
+            https://raw.githubusercontent.com/schul-cloud/ressources-api-v1/master/schemas/ressource/examples/valid/example-website.json
             
 Authentication
 ~~~~~~~~~~~~~~
