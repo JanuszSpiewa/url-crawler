@@ -1,6 +1,9 @@
 schul-cloud-url-crawler
 =======================
 
+.. image:: https://travis-ci.org/schul-cloud/url-crawler.svg?branch=master
+  :alt: Build Status
+  :target: https://travis-ci.org/schul-cloud/url-crawler
 
 This crawler fetches ressources from urls and posts them to a server.
 
