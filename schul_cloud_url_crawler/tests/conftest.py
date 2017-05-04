@@ -145,6 +145,8 @@ def ressource_urls(ressources, serve):
     """The list of orls where the ressources can be found."""
     return [serve(ressource) for ressource in ressources]
 
-
-
+@pytest.fixture
+def ressource_urls_url(ressource_urls, serve):
+    """Serve a list of urls."""
+    return serve("\n".join(ressource_urls))
 
