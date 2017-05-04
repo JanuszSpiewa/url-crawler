@@ -2,8 +2,12 @@ schul-cloud-url-crawler
 =======================
 
 .. image:: https://travis-ci.org/schul-cloud/url-crawler.svg?branch=master
-  :alt: Build Status
-  :target: https://travis-ci.org/schul-cloud/url-crawler
+   :target: https://travis-ci.org/schul-cloud/url-crawler
+   :alt: Build Status
+
+.. image:: https://badge.fury.io/py/schul-cloud-ressources-server-tests.svg
+   :target: https://pypi.python.org/pypi/schul-cloud-ressources-server-tests
+   :alt: Python Package Index
 
 This crawler fetches ressources from urls and posts them to a server.
 
