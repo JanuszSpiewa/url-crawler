@@ -1,16 +1,21 @@
 import pytest
 from bottle import Bottle, ServerAdapter
 from threading import Thread
-from schul_cloud_ressources_api_v1.schema import get_valid_examples
+from schul_cloud_resources_api_v1.schema import get_valid_examples
+from schul_cloud_resources_api_v1 import ApiClient, ResourceApi
+from schul_cloud_resources_server_tests.app import run as run_test_server_app
+from schul_cloud_resources_server_tests.tests.fixtures import *
+from schul_cloud_url_crawler import ResourceClient
 import time
 import requests
 
+
 # configuration
-NUMBER_OF_VALID_RESSOURCES = 3
+NUMBER_OF_VALID_RESOURCES = 3
 STARTUP_TIMEOUT = 2 # seconds
 
 # module constants
-VALID_RESSOURCES = get_valid_examples()
+VALID_RESOURCES = get_valid_examples()
 
 
 @pytest.fixture(scope="session")
@@ -19,52 +24,15 @@ def host():
     return "localhost"
 
 
-class WSGIRefServer(ServerAdapter):
-    # copied from bottle
-    def run(self, app): # pragma: no cover
-        from wsgiref.simple_server import WSGIRequestHandler, WSGIServer
-        from wsgiref.simple_server import make_server
-        import socket
-
-        class FixedHandler(WSGIRequestHandler):
-            def address_string(self): # Prevent reverse DNS lookups please.
-                return self.client_address[0]
-            def log_request(*args, **kw):
-                if not self.quiet:
-                    return WSGIRequestHandler.log_request(*args, **kw)
-
-        handler_cls = self.options.get('handler_class', FixedHandler)
-        server_cls  = self.options.get('server_class', WSGIServer)
-
-        if ':' in self.host: # Fix wsgiref for IPv6 addresses.
-            if getattr(server_cls, 'address_family') == socket.AF_INET:
-                class server_cls(server_cls):
-                    address_family = socket.AF_INET6
-
-        self.srv = make_server(self.host, 0, app, server_cls, handler_cls)
-        self.srv.serve_forever()
-
-    def shutdown(self):
-        """Stop the server."""
-        self.srv.shutdown()
-
-    def get_port(self):
-        """Return the port of the server."""
-        try:
-            return self.srv.socket.getsockname()[1]
-        except AttributeError:
-            return None
-
-
 @pytest.fixture(scope="session")
 def _server():
     """The server to start the app."""
-    return WSGIRefServer()
+    return StoppableWSGIRefServerAdapter()
 
 
 @pytest.fixture(scope="session")
 def app(_server, host):
-    """The bottle app serving the ressources."""
+    """The bottle app serving the resources."""
     app = Bottle()
     # app.run http://bottlepy.org/docs/dev/api.html#bottle.run
     thread = Thread(target=app.run, kwargs=dict(host=host, server=_server))
@@ -94,11 +62,11 @@ def base_url(host, port):
 
 @pytest.fixture
 def serve(app, base_url):
-    """A function to serve ressources."""
+    """A function to serve resources."""
     served = []
     def serve(body):
         """Serve a response body and return the url."""
-        url = "/res/" + str(len(served)) 
+        url = "/crawled-server/" + str(len(served)) 
         served.append(url)
         app.get(url, callback=lambda: body)
         return base_url + url
@@ -106,47 +74,53 @@ def serve(app, base_url):
     app.reset()
 
 
-_ressource_id = 0
+_resource_id = 0
 
-def ressource_with_id(ressource):
-    """Set the id for a ressource."""
-    global _ressource_id
-    _ressource_id += 1
-    ressource = ressource.copy()
-    assert "X-Test-Id" not in ressource
-    ressource["X-Test-Id"] = _ressource_id
-    return ressource
+def resource_with_id(resource):
+    """Set the id for a resource."""
+    global _resource_id
+    _resource_id += 1
+    resource = resource.copy()
+    assert "X-Test-Id" not in resource
+    resource["X-Test-Id"] = _resource_id
+    return resource
 
-@pytest.fixture(params=VALID_RESSOURCES[:NUMBER_OF_VALID_RESSOURCES])
-def ressource(request):
-    """A valid ressource."""
-    return ressource_with_id(request.param)
+@pytest.fixture(params=VALID_RESOURCES[:NUMBER_OF_VALID_RESOURCES])
+def resource(request):
+    """A valid resource."""
+    return resource_with_id(request.param)
 
 
 @pytest.fixture
-def ressource_url(ressource, serve):
-    """The url to retrieve the valid ressource."""
-    return serve(ressource)
+def resource_url(resource, serve):
+    """The url to retrieve the valid resource."""
+    return serve(resource)
 
 
 @pytest.fixture(params=[
-        VALID_RESSOURCES,       # all valid resssources
-        [VALID_RESSOURCES[0]],  # one valid ressource
-        VALID_RESSOURCES[::-2], # every second ressource in reversed order
-        []                       # no ressources
+        VALID_RESOURCES,       # all valid resources
+        [VALID_RESOURCES[0]],  # one valid resource
+        VALID_RESOURCES[::-2], # every second resource in reversed order
+        []                       # no resources
     ])
-def ressources(request):
-    """A list of ressources."""
-    return list(map(ressource_with_id, request.param))
+def resources(request):
+    """A list of resources."""
+    return list(map(resource_with_id, request.param))
 
 
 @pytest.fixture
-def ressource_urls(ressources, serve):
-    """The list of orls where the ressources can be found."""
-    return [serve(ressource) for ressource in ressources]
+def resource_urls(resources, serve):
+    """The list of orls where the resources can be found."""
+    return [serve(resource) for resource in resources]
 
 @pytest.fixture
-def ressource_urls_url(ressource_urls, serve):
+def resource_urls_url(resource_urls, serve):
     """Serve a list of urls."""
-    return serve("\n".join(ressource_urls))
+    return serve("\n".join(resource_urls))
 
+# TODO: add fixture for authentication
+
+@pytest.fixture
+def client(resources_server):
+    """Return a ResourceClient."""
+    return ResourceClient(resources_server.url)

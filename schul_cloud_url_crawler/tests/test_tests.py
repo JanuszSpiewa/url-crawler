@@ -7,6 +7,10 @@ def test_server_is_available(base_url):
     response = requests.get(base_url)
     assert response.status_code == 404
 
-def test_url_starts_with_source_server_url(base_url, ressource_url):
-    """The ressource url should be in the bottle server."""
-    assert ressource_url.startswith(base_url)
+def test_url_starts_with_source_server_url(base_url, resource_url):
+    """The resource url should be in the bottle server."""
+    assert resource_url.startswith(base_url)
+
+def test_api_has_url(resources_server, client):
+    """Make sure the api communicates with the storage server."""
+    assert resources_server.url == client.url
