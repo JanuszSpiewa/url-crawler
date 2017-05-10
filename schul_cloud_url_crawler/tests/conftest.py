@@ -5,7 +5,7 @@ from schul_cloud_resources_api_v1.schema import get_valid_examples
 from schul_cloud_resources_api_v1 import ApiClient, ResourceApi
 from schul_cloud_resources_server_tests.app import run as run_test_server_app
 from schul_cloud_resources_server_tests.tests.fixtures import *
-from schul_cloud_url_crawler import ResourceClient
+from schul_cloud_url_crawler import ResourceClient, CrawledResource
 import time
 import requests
 
@@ -97,6 +97,12 @@ def resource_url(resource, serve):
     return serve(resource)
 
 
+@pytest.fixture(params=[[], ["http://asdasd.asd"],
+    ["http://asdasd.asd", "http://asdasd.asd#4", "http://asdasd.asd2#44"]])
+def resource_path(request):
+    """A list of urls where the resources originates from."""
+    return request.param
+
 @pytest.fixture(params=[
         VALID_RESOURCES,       # all valid resources
         [VALID_RESOURCES[0]],  # one valid resource
@@ -124,3 +130,10 @@ def resource_urls_url(resource_urls, serve):
 def client(resources_server):
     """Return a ResourceClient."""
     return ResourceClient(resources_server.url)
+
+
+@pytest.fixture
+def crawled_resource(resource, resource_path):
+    """Return a crawled resource."""
+    return CrawledResource(resource, resource_path)
+

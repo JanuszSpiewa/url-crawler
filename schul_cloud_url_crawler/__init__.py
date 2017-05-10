@@ -1,4 +1,6 @@
 from .fetch import fetch
+from .crawled_resource import CrawledResource
+
 
 class ResourceClient:
     """The client to communicate with the ressource server."""
