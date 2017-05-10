@@ -10,7 +10,7 @@ pyparsing==2.2.0
 pytest==3.0.7
 python-dateutil==2.6.0
 requests==2.13.0
-schul-cloud-ressources-api-v1
-schul-cloud-ressources-server-tests==1.0.25
+schul-cloud-resources-api-v1==1.0.0.80
+schul-cloud-resources-server-tests==1.0.46
 six==1.10.0
 urllib3==1.21
