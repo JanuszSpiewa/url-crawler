@@ -81,6 +81,7 @@ class TestApiAdapter:
     def test_id_is_derived_from_url(self, crawled_resource, resource_path):
         """The resource id is unique to the crawled url."""
         expected_id = sha256(resource_path[0].encode()).hexdigest()
+        assert crawled_resource.origin_id == expected_id
         assert expected_id in crawled_resource.id
 
     @mark.parametrize("relative_id", ["haskjfagskjdgfdaksf", "1", "3333333", "#2134"])

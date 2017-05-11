@@ -51,3 +51,4 @@ def fetch(url_or_list_of_urls):
     for url in url_or_list_of_urls:
         fetcher.fetch(url)
     return fetcher
+
