@@ -46,10 +46,9 @@ class CrawledResource:
         resource["providers"] = resource["providers"] + [self.provider]
         return resource
 
-    @property
-    def api_resource_post(self):
+    def get_api_resource_post(self, id_prefix=""):
         """The jsonapi format for the resource."""
-        return {"data":{"attributes":self.resource, "id": self.id, "type":"resource"}}
+        return {"data":{"attributes":self.resource, "id": id_prefix+self.id, "type":"resource"}}
 
     @property
     def id(self):

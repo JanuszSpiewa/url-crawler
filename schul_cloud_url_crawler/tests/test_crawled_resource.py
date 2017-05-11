@@ -23,7 +23,7 @@ def test_crawled_resource_has_urls(crawled_resource, resource_path):
 get_provider = mark.parametrize("get_provider", [
         lambda cr: cr.resource["providers"][-1],
         lambda cr: cr.provider,
-        lambda cr: cr.api_resource_post["data"]["attributes"]["providers"][-1]
+        lambda cr: cr.get_api_resource_post()["data"]["attributes"]["providers"][-1]
     ])
 
 
@@ -66,17 +66,17 @@ class TestApiAdapter:
 
     def test_get_jsonapi_data(self, crawled_resource, resource):
         """Test that the crawled resource can create the right data."""
-        resource = crawled_resource.api_resource_post["data"]["attributes"]
+        resource = crawled_resource.get_api_resource_post()["data"]["attributes"]
         resource.pop("providers")
         assert resource == resource
 
     def test_the_type_is_resource(self, crawled_resource):
         """The posted type should be resource."""
-        assert crawled_resource.api_resource_post["data"]["type"] == "resource"
+        assert crawled_resource.get_api_resource_post()["data"]["type"] == "resource"
 
     def test_id_is_in_data(self, crawled_resource):
         """Test that the resources are provided with an id in the data."""
-        assert crawled_resource.id == crawled_resource.api_resource_post["data"]["id"]
+        assert crawled_resource.id == crawled_resource.get_api_resource_post()["data"]["id"]
 
     def test_id_is_derived_from_url(self, crawled_resource, resource_path):
         """The resource id is unique to the crawled url."""
@@ -92,8 +92,9 @@ class TestApiAdapter:
         assert crawled_resource.id_in_origin == relative_id
         assert relative_id in crawled_resource.id
 
-
-
+    def test_client_id_can_be_prepended_to_the_id(self, crawled_resource):
+        """Allow the client to append something to the id."""
+        assert crawled_resource.get_api_resource_post("client-id")["data"]["id"].startswith("client-id")
 
 
 

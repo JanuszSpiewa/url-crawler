@@ -135,8 +135,8 @@ def api():
     return Mock()
 
 @pytest.fixture
-def api_client(api):
-    """Return a ResourceClient."""
+def client(api):
+    """Return a ResourceClient connected to the api."""
     return ResourceClient(api)
 
 

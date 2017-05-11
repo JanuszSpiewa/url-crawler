@@ -55,6 +55,14 @@ def test_index_in_urls(resource_urls_url, resource_urls):
          assert crawled_resource.origin_urls == expected_origin_urls
 
 
+def test_fetch_with_callback(resource_urls, resources):
+    """Test that a resource can be passed to fetch."""
+    callback_resources = []
+    callback = callback_resources.append
+    fetch(resource_urls, callback)
+    assert resources == [cr.crawled_resource for cr in callback_resources]
+
+
 class TestRelativeId:
     """When a resource is crawled, it should get its individual id.
     

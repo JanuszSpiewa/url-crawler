@@ -6,9 +6,10 @@ class Fetcher:
 
     from .crawled_resource import CrawledResource
 
-    def __init__(self):
+    def __init__(self, on_added_resource=None):
         """Fetch objects from urls."""
         self._resources = []
+        self._on_added_resource = on_added_resource
 
     def fetch(self, url, origin=[], relative_id=""):
         """Fetch a url and add the resources to this fetcher.
@@ -29,6 +30,8 @@ class Fetcher:
             crawled_resource = self.CrawledResource(
                 resource, origin + [url], relative_id)
             self._resources.append(crawled_resource)
+            if self._on_added_resource is not None:
+                self._on_added_resource(crawled_resource)
 
     def get_resources(self):
         """Return a list of resources as defined in the api.
@@ -43,9 +46,12 @@ class Fetcher:
         return self._resources
 
 
-def fetch(url_or_list_of_urls):
-    """Return a Fetcher that fetches the urls."""
-    fetcher = Fetcher()
+def fetch(url_or_list_of_urls, on_added_resource=None):
+    """Return a Fetcher that fetches the urls.
+
+    - on_added_resource: a callback to call when a resource is added.
+    """
+    fetcher = Fetcher(on_added_resource)
     if not isinstance(url_or_list_of_urls, list):
         url_or_list_of_urls = [url_or_list_of_urls]
     for url in url_or_list_of_urls:
