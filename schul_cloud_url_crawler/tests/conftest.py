@@ -97,11 +97,14 @@ def resource_url(resource, serve):
     return serve(resource)
 
 
-@pytest.fixture(params=[[], ["http://asdasd.asd"],
-    ["http://asdasd.asd", "http://asdasd.asd#4", "http://asdasd.asd2#44"]])
+@pytest.fixture(params=[
+    ["http://asdasd.asd"],
+    ["http://asdasd.asd", "http://asdasd.asd#4", "http://asdasd.asd2#44"],
+    ["https://wikipedia.de/w/batman", "https://wikipedia.de/w/media/batman.png"]])
 def resource_path(request):
     """A list of urls where the resources originates from."""
     return request.param
+
 
 @pytest.fixture(params=[
         VALID_RESOURCES,       # all valid resources

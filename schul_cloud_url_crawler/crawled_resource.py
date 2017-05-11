@@ -1,14 +1,19 @@
 """The adapter from crawler to resource api.
 
 """
+import hashlib
+
 
 class CrawledResource:
     """A resource crawled by the crawler."""
 
-    def __init__(self, resource, origin_urls=[]):
+    def __init__(self, resource, origin_urls:list, id_in_origin=""):
         """Create a new crawled resource with the source urls."""
+        if not origin_urls:
+            raise ValueError("Expected the resource to have an origin.")
         self._resource = resource
         self._origin_urls = origin_urls
+        self._id_in_origin = id_in_origin
 
     @property
     def crawled_resource(self):
@@ -39,4 +44,10 @@ class CrawledResource:
     @property
     def api_resource_post(self):
         """The jsonapi format for the resource."""
-        return {"data":{"attributes":self.resource}}
+        return {"data":{"attributes":self.resource, "id": self.id, "type":"resource"}}
+
+    @property
+    def id(self):
+        """Return the id of this resource."""
+        url_hash = hashlib.sha256(self._origin_urls[0].encode()).hexdigest()
+        return url_hash + "." + self._id_in_origin
