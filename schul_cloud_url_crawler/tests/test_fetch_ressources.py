@@ -28,10 +28,20 @@ def test_there_are_as_many_resources_as_urls(resources, resource_urls):
     assert len(resources) == len(resource_urls)
 
 
+def test_make_sure_all_resources_are_crawled_from_list(resource_urls):
+    """Test that there is a correlation between urls and cawled content."""
+    result = fetch(resource_urls)
+    assert len(resource_urls) == len(result.crawled_resources)
+
+def test_make_sure_all_resources_are_crawled_from_url(resource_urls, resources):
+    """Test that there is a correlation between urls and cawled content."""
+    result = fetch(resource_urls)
+    assert len(resource_urls) == len(result.crawled_resources)
+
+
 def test_crawled_resources(resources, resource_urls):
     """Test that the resources match."""
     result = fetch(resource_urls)
-    assert len(resource_urls) == len(result.crawled_resources)
     for i, crawled_resource in enumerate(result.crawled_resources):
         assert crawled_resource.crawled_resource == resources[i]
         assert crawled_resource.origin_urls == [resource_urls[i]]
@@ -40,9 +50,27 @@ def test_crawled_resources(resources, resource_urls):
 def test_index_in_urls(resource_urls_url, resource_urls):
     """Test that the resource urls url is inside the origin."""
     result = fetch(resource_urls_url)
-    assert len(resource_urls) == len(result.crawled_resources)
     for i, crawled_resource in enumerate(result.crawled_resources):
          expected_origin_urls = [resource_urls_url + "#" + str(i), resource_urls[i]]
          assert crawled_resource.origin_urls == expected_origin_urls
+
+
+class TestRelativeId:
+    """When a resource is crawled, it should get its individual id.
+    
+    This id iscomputed from the index in the file the resource is from.
+    """
+
+    def test_only_one_resource_has_no_id(resource_urls):
+        """If there is only one resource, no id is needed to identify it."""
+        result = fetch(resource_urls)
+        assert all(not cr.id_in_origin for cr in result.crawled_resources)
+    
+    def test_the_index_is_added_to_the_ids(resource_urls_url):
+        result = fetch(resource_urls_url)
+        
+
+
+
 
 

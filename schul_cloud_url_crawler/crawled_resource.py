@@ -5,7 +5,12 @@ import hashlib
 
 
 class CrawledResource:
-    """A resource crawled by the crawler."""
+    """A resource crawled by the crawler.
+
+
+    This is an adapter bewteen crawler and API.
+    The id is computed by the originating url and the id it has in the url.
+    """
 
     def __init__(self, resource, origin_urls:list, id_in_origin=""):
         """Create a new crawled resource with the source urls."""
