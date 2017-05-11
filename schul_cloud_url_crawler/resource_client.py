@@ -1,4 +1,8 @@
+import hashlib
 
+def hash_url(url):
+    """Return the hashed url."""
+    return hashlib.sha256(url.encode()).hexdigest()
 
 class ResourceClient:
     """The client to communicate with the ressource server."""
@@ -23,11 +27,20 @@ class ResourceClient:
 
     def delete_resources_from(self, urls):
         """Delete all resources which were crawled from these urls."""
+        ids = self._api.get_resource_ids().data
+        url_hashes = list(map(hash_url, urls))
+        for _id in ids:
+            if _id.id.startswith(self._client_id) and all(h in _id.id for h in url_hashes):
+                self._api.delete_resource(_id.id)
 
 
     def delete_resources_not_from(self, urls):
         """Delete all resources which do not originate from the urls."""
-
+        ids = self._api.get_resource_ids().data
+        url_hashes = list(map(hash_url, urls))
+        for _id in ids:
+            if _id.id.startswith(self._client_id) and any(h not in _id.id for h in url_hashes):
+                self._api.delete_resource(_id.id)
 
     def update(self, urls):
         """Synchronize the content on the server from the given urls.

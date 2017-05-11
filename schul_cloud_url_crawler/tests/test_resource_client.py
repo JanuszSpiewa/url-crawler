@@ -31,3 +31,29 @@ def test_update_nonexistent_resource(client, api, crawled_resource):
     client.update_resource(crawled_resource)
     assert api.mock_calls == [call.get_resource_ids(), call.add_resource(post)]
 
+
+def test_deleting_resources_from_urls(client, api, crawled_resource):
+    """Test that the resources frm the urls are deleted, identified by the
+    client id and the hash of the url.
+    """
+    _id = client.client_id + ":" + crawled_resource.id
+    api.get_resource_ids.return_value = RESPONSE([
+        ID(_id), ID(client.client_id + ":asdad"), ID("asdasdasddsa")])
+    client.delete_resources_from([crawled_resource.origin_url])
+    assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(_id)]
+
+def test_deleting_resources_not_from_urls(client, api, crawled_resource):
+    """Test that the resources frm the urls are deleted, identified by the
+    client id and the hash of the url.
+    """
+    _id = client.client_id + ":" + crawled_resource.id
+    api.get_resource_ids.return_value = RESPONSE([
+        ID(_id), ID(client.client_id + ":asdad"), ID("asdasdasddsa")])
+    client.delete_resources_not_from([crawled_resource.origin_url])
+    assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(client.client_id + ":asdad")]
+
+
+
+
+
+
