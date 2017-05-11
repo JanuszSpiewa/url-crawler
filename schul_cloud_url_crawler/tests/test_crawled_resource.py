@@ -88,6 +88,7 @@ class TestApiAdapter:
             self, resource, resource_path, relative_id):
         """Make sure all resources from the same url have different ids."""
         crawled_resource = CrawledResource(resource, resource_path, relative_id)
+        assert crawled_resource.id_in_origin == relative_id
         assert relative_id in crawled_resource.id
 
 
