@@ -51,3 +51,10 @@ class CrawledResource:
         """Return the id of this resource."""
         url_hash = hashlib.sha256(self._origin_urls[0].encode()).hexdigest()
         return url_hash + "." + self._id_in_origin
+
+
+    @property
+    def id_in_origin(self):
+        """The id the resource has in its originating url."""
+        return self._id_in_origin
+
