@@ -8,6 +8,7 @@ from schul_cloud_resources_server_tests.tests.fixtures import *
 from schul_cloud_url_crawler import ResourceClient, CrawledResource
 import time
 import requests
+from unittest.mock import Mock
 
 
 # configuration
@@ -130,9 +131,13 @@ def resource_urls_url(resource_urls, serve):
 # TODO: add fixture for authentication
 
 @pytest.fixture
-def client(resources_server):
+def api():
+    return Mock()
+
+@pytest.fixture
+def api_client(api):
     """Return a ResourceClient."""
-    return ResourceClient(resources_server.url)
+    return ResourceClient(api)
 
 
 @pytest.fixture

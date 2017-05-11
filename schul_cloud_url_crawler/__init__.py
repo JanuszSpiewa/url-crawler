@@ -1,15 +1,4 @@
 from .fetch import fetch
 from .crawled_resource import CrawledResource
+from .resource_client import ResourceClient
 
-
-class ResourceClient:
-    """The client to communicate with the ressource server."""
-
-    def __init__(self, url):
-        """Communicate with the server behind the url."""
-        self._url = url
-
-    @property
-    def url(self):
-        """The url of the server."""
-        return self._url
