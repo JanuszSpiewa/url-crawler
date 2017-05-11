@@ -4,24 +4,35 @@ import requests
 class Fetcher:
     """This holds the state of a fetch operation."""
 
+    from .crawled_resource import CrawledResource
+
     def __init__(self):
         """Fetch objects from urls."""
         self._resources = []
 
-    def fetch(self, url):
+    def fetch(self, url, origin=[]):
         """Fetch a url and add the resources to this fetcher."""
         response = requests.get(url)
+        print("origin", origin)
         try:
             resource = response.json()
         except ValueError:
             links = response.text.split()
-            for link in links:
-                self.fetch(link)
+            for i, link in enumerate(links):
+                self.fetch(link, origin + [url + "#" + str(i)])
         else:
-            self._resources.append(resource)
+            self._resources.append(self.CrawledResource(resource, origin + [url]))
 
     def get_resources(self):
-        """Return a list of resources as defined in the api."""
+        """Return a list of resources as defined in the api.
+
+        These are collected from the crawled_resources.
+        """
+        return [ resource.crawled_resource for resource in self._resources]
+
+    @property
+    def crawled_resources(self):
+        """The crawled resources."""
         return self._resources
 
 
