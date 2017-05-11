@@ -11,7 +11,12 @@ class Fetcher:
         self._resources = []
 
     def fetch(self, url, origin=[], relative_id=""):
-        """Fetch a url and add the resources to this fetcher."""
+        """Fetch a url and add the resources to this fetcher.
+
+        - url: the url to fetch
+        - origin: where you got the url from
+        - relative_id: if you got the url from somewhere, how you would identify it there
+        """
         response = requests.get(url)
         print("origin", origin)
         try:
