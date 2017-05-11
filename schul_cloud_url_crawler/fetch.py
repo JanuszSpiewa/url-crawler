@@ -10,7 +10,7 @@ class Fetcher:
         """Fetch objects from urls."""
         self._resources = []
 
-    def fetch(self, url, origin=[]):
+    def fetch(self, url, origin=[], relative_id=""):
         """Fetch a url and add the resources to this fetcher."""
         response = requests.get(url)
         print("origin", origin)
@@ -19,9 +19,11 @@ class Fetcher:
         except ValueError:
             links = response.text.split()
             for i, link in enumerate(links):
-                self.fetch(link, origin + [url + "#" + str(i)])
+                self.fetch(link, origin + [url + "#" + str(i)], relative_id + "." + str(i))
         else:
-            self._resources.append(self.CrawledResource(resource, origin + [url]))
+            crawled_resource = self.CrawledResource(
+                resource, origin + [url], relative_id)
+            self._resources.append(crawled_resource)
 
     def get_resources(self):
         """Return a list of resources as defined in the api.

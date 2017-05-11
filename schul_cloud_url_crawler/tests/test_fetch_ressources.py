@@ -61,13 +61,16 @@ class TestRelativeId:
     This id iscomputed from the index in the file the resource is from.
     """
 
-    def test_only_one_resource_has_no_id(resource_urls):
+    def test_only_one_resource_has_no_id(self, resource_urls):
         """If there is only one resource, no id is needed to identify it."""
         result = fetch(resource_urls)
         assert all(not cr.id_in_origin for cr in result.crawled_resources)
     
-    def test_the_index_is_added_to_the_ids(resource_urls_url):
+    def test_the_index_is_added_to_the_ids(self, resources, resource_urls_url):
         result = fetch(resource_urls_url)
+        for i in range(len(resources)):
+            expected_id = "." + str(i)
+            assert result.crawled_resources[i].id_in_origin == expected_id
         
 
 
