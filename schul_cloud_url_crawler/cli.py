@@ -11,6 +11,8 @@ TODO:
 import click
 from schul_cloud_url_crawler.resource_client import ResourceClient
 from schul_cloud_resources_api_v1 import ApiClient, ResourceApi
+import schul_cloud_resources_api_v1.auth as auth
+
 
 
 @click.command()
@@ -27,5 +29,12 @@ def main(api, urls=[], basic=None, apikey=None):
     resource_api = ResourceApi(api_client)
     resource_client = ResourceClient(resource_api)
     print("updating", api, urls)
+    if basic:
+        username, password = basic.split(":", 1)
+        auth.basic(username, password)
+    elif apikey:
+        auth.api_key(apikey)
+    else:
+        auth.none()
     resource_client.update(urls)
 

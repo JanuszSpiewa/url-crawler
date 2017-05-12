@@ -48,6 +48,7 @@ def test_all_resources_on_the_server_are_from_the_client(
         assert any(server_resource["X-Test-Id"] == resource["X-Test-Id"]
                    for resource in resources)
 
+
 def test_all_updated_resources_are_on_the_server(
         resources_server, sclient, resources, resource_urls, update_function):
     """Crawl some resources and find them on the server."""

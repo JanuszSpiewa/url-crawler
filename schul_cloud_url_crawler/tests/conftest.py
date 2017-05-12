@@ -1,5 +1,5 @@
 import pytest
-from bottle import Bottle, ServerAdapter
+from bottle import Bottle, ServerAdapter, abort
 from threading import Thread
 from schul_cloud_resources_api_v1.schema import get_valid_examples
 from schul_cloud_resources_api_v1 import ApiClient, ResourceApi
@@ -75,6 +75,12 @@ def serve(app, base_url):
     yield serve
     app.reset()
 
+
+@pytest.fixture
+def url401(app, base_url):
+    path = "/404/<path:path>"
+    app.get(path, callback=lambda path: abort(401))
+    return base_url + path
 
 _resource_id = 0
 
