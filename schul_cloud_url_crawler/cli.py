@@ -1,4 +1,17 @@
+"""
+The command line interface for the crawler.
+
+TODO:
+- delete all
+- delete not updated
+- delete from urls
+- delete not from urls
+
+"""
 import click
+from schul_cloud_url_crawler.resource_client import ResourceClient
+from schul_cloud_resources_api_v1 import ApiClient, ResourceApi
+
 
 @click.command()
 @click.argument("api", type=str, required=True)
@@ -9,5 +22,10 @@ import click
               help="The api key for authentication at the API.")
 def main(api, urls=[], basic=None, apikey=None):
     """Fetch ressources from URLS and post them to the API."""
-    pass
+    urls = list(urls)
+    api_client = ApiClient(api)
+    resource_api = ResourceApi(api_client)
+    resource_client = ResourceClient(resource_api)
+    print("updating", api, urls)
+    resource_client.update(urls)
 
