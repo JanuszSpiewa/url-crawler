@@ -43,22 +43,24 @@ def test_deleting_resources_from_urls(client, api, crawled_resource):
     """Test that the resources frm the urls are deleted, identified by the
     client id and the hash of the url.
     """
-    _id = api_id(client, crawled_resource)
+    id1 = api_id(client, crawled_resource)
+    id2 = api_id(client, ID("asdsadad"))
     api.get_resource_ids.return_value = RESPONSE([
-        ID(_id), ID(client.client_id + ":asdad"), ID("asdasdasddsa")])
+        ID(id1), ID(id2), ID("asdasdasddsa")])
     client.delete_resources_from([crawled_resource.origin_url])
-    assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(_id)]
+    assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(id1)]
 
 
 def test_deleting_resources_not_from_urls(client, api, crawled_resource):
     """Test that the resources frm the urls are deleted, identified by the
     client id and the hash of the url.
     """
-    _id = api_id(client, crawled_resource)
+    id1 = api_id(client, crawled_resource)
+    id2 = api_id(client, ID("asdsadad"))
     api.get_resource_ids.return_value = RESPONSE([
-        ID(_id), ID(client.client_id + ":asdad"), ID("asdasdasddsa")])
+        ID(id1), ID(id2), ID("asdasdasddsa")])
     client.delete_resources_not_from([crawled_resource.origin_url])
-    assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(client.client_id + ":asdad")]
+    assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(id2)]
 
 
 class TestUpdateSequence:
@@ -134,7 +136,7 @@ class TestUpdateResources:
             skip("not enough resources!")
         _id = api_id(client, crawled_resources[0])
         api.get_resource_ids.return_value = RESPONSE([
-            ID(client.client_id + ":asdsadad"), ID(_id), ID("asdasdasddsa")])
+            ID(api_id(client, ID("asdsadad"))), ID(_id), ID("asdasdasddsa")])
         def fetch(resource_urls, on_resource_found):
             for crawled_resource in crawled_resources:
                 on_resource_found(crawled_resource)
@@ -142,7 +144,7 @@ class TestUpdateResources:
         client.update(resource_urls)
         return api
 
-    def test_update_gets_all_ids(self, fetch_mock_api, ):
+    def test_update_gets_all_ids(self, fetch_mock_api):
         """Fetching a needs the client ids."""
         fetch_mock_api.get_resource_ids.assert_called_once_with()
 
@@ -169,10 +171,47 @@ class TestUpdateResources:
         assert fetch_mock_api.delete_resource.call_count == 1
 
 
+# TODO: test that list gets less elements
 
-
-
-
+    @mark.parametrize("split", [-1, 0, 100, 4])
+    def test_when_the_url_list_is_shortened_unused_resources_are_deleted(
+            self, api, client, crawled_resources, split, resource_urls):
+        """The client posts resources to the server.
+        If the list gets shorter, old resources must be deleted.
+        After a url is successfully crawled, all unused ids bu this url get deleted.
+        This is a way to hold the server clean with every update.
+        """
+        if len(crawled_resources) == 0:
+            skip("not enough resources!")
+        def fetch(resource_urls, on_resource_found):
+            for crawled_resource in crawled_resources:
+                on_resource_found(crawled_resource)
+        client.fetch = fetch
+        client.update(resource_urls)
+        crawled2 = crawled_resources[:split]
+        def fetch(resource_urls, on_resource_found):
+            for crawled_resource in crawled2:
+                on_resource_found(crawled_resource)
+        client.fetch = fetch
+        api.mock_calls = []
+        print("------------------------")
+        print("split", split)
+        client.update(resource_urls)
+        new_calls = api.mock_calls
+        new_delete_calls = [call for call in new_calls if call[0] == "delete_resource"]
+        new_add_calls = [call for call in new_calls if call[0] == "add_resource"]
+        assert len(new_calls) == len(new_delete_calls) + len(new_add_calls)
+        print("not updated:");pprint(crawled_resources[split:])
+        print("deleted:");pprint(new_delete_calls)
+        print("updated:");pprint(crawled_resources[:split])
+        print("added:");pprint(new_add_calls)
+        for crawled_resource in crawled_resources:
+            crawled = crawled_resource in crawled2
+            post = crawled_resource.get_api_resource_post(api_id(client))
+            post_call = call.add_resource(post)
+            assert (post_call in new_add_calls) == crawled
+            delete_call = call.delete_resource(api_id(client, crawled_resource))
+            assert delete_call in new_delete_calls
 
 
 

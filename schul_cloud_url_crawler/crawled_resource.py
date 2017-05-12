@@ -70,3 +70,6 @@ class CrawledResource:
         """The id the resource has in its originating url."""
         return self._id_in_origin
 
+    def __repr__(self):
+        """A string representation of this resource."""
+        return "<{} {}>".format(self.__class__.__name__, self.id)

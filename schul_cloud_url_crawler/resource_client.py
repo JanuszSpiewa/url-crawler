@@ -1,5 +1,6 @@
 import hashlib
 import schul_cloud_url_crawler
+from pprint import pprint
 
 
 def hash_url(url):
@@ -25,7 +26,9 @@ class ResourceClient:
     def _ids(self):
         """Return a list of ids on the server."""
         if self.__ids is None:
-            self.__ids = set(_id.id for _id in self._api.get_resource_ids().data)
+            _cid = self._client_id + "+"
+            self.__ids = set(_id.id for _id in self._api.get_resource_ids().data
+                             if _id.id.startswith(_cid))
         return self.__ids
 
     fetch = staticmethod(schul_cloud_url_crawler.fetch)
@@ -43,7 +46,7 @@ class ResourceClient:
         """Delete all resources which were crawled from these urls."""
         url_hashes = list(map(hash_url, urls))
         for _id in self._ids:
-            if _id.startswith(self._client_id) and all(h in _id for h in url_hashes):
+            if all(h in _id for h in url_hashes):
                 self._api.delete_resource(_id)
 
 
@@ -51,7 +54,7 @@ class ResourceClient:
         """Delete all resources which do not originate from the urls."""
         url_hashes = list(map(hash_url, urls))
         for _id in self._ids:
-            if _id.startswith(self._client_id) and any(h not in _id for h in url_hashes):
+            if any(h not in _id for h in url_hashes):
                 self._api.delete_resource(_id)
 
     def update(self, urls):
@@ -63,11 +66,19 @@ class ResourceClient:
         - Deleted resources are deleted.
         - Only resources with this client's id are touched.
         """
-        existing_ids = self._ids
+        updated_ids = set()
         def sync_resource(crawled_resource):
             """Syncronize a crawled resource."""
-            self.update_resource(crawled_resource)
+            _id = self.update_resource(crawled_resource)
+            updated_ids.add(_id)
         self.fetch(urls, sync_resource)
+        url_hashes = set(map(hash_url, urls))
+        for untouched_id in self._ids - updated_ids:
+            for url_hash in url_hashes:
+                if url_hash in untouched_id:
+                    self._api.delete_resource(untouched_id)
+                    self._ids.remove(untouched_id)
+                    print("delete and untouched", untouched_id)
 
     def delete_resource(self, resource_id):
         """Delete the identified resource.
@@ -78,12 +89,14 @@ class ResourceClient:
         if resource_id in self._ids:
             self._api.delete_resource(resource_id)
             self._ids.remove(resource_id)
-        print("delete", self._ids, resource_id)
+#        print("delete", self._ids, resource_id)
+        print("delete()", resource_id)
 
     def update_resource(self, crawled_resource):
         """Update the crawled resource on the server.
 
         This deleted the resource on the server and posts it again.
+        Return the id of the resource.
         """
         post = crawled_resource.get_api_resource_post(self._client_id + self.CLIENT_RESOURCE_ID_DIVISION_STRING)
         resource_id = post["data"]["id"]
@@ -91,6 +104,8 @@ class ResourceClient:
              self._api.delete_resource(resource_id)
         self._api.add_resource(post)
         self._ids.add(resource_id)
-        print("update", self._ids)
+#        print("update", self._ids)
+        print("update()", resource_id)
+        return resource_id
 
 
