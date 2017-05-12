@@ -10,9 +10,9 @@ from pprint import pprint
 RESPONSE = namedtuple("RESPONSE", ["data"])
 ID = namedtuple("ID", ["id"])
 
-def api_id(client, crawled_resource):
+def api_id(client, crawled_resource=ID("")):
     """Return the id of the resource on the api as used by the client."""
-    return client.client_id + ":" + crawled_resource.id
+    return client.client_id + "+" + crawled_resource.id
 
 
 def test_delete_all_resources(client, api):
@@ -24,7 +24,7 @@ def test_delete_all_resources(client, api):
 def test_update_present_resource(client, api, crawled_resource):
     """Test that the client tries to delete the resource and add it again if it is present."""
     _id = api_id(client, crawled_resource)
-    post = crawled_resource.get_api_resource_post(client.client_id + ":")
+    post = crawled_resource.get_api_resource_post(api_id(client))
     api.get_resource_ids.return_value = RESPONSE([ID(_id)])
     client.update_resource(crawled_resource)
     assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(_id), call.add_resource(post)]
@@ -33,7 +33,7 @@ def test_update_present_resource(client, api, crawled_resource):
 def test_update_nonexistent_resource(client, api, crawled_resource):
     """Test that a delete call is not issued if the resource does not exist."""
     _id = api_id(client, crawled_resource)
-    post = crawled_resource.get_api_resource_post(client.client_id + ":")
+    post = crawled_resource.get_api_resource_post(api_id(client))
     api.get_resource_ids.return_value = RESPONSE([])
     client.update_resource(crawled_resource)
     assert api.mock_calls == [call.get_resource_ids(), call.add_resource(post)]
@@ -77,7 +77,7 @@ class TestUpdateSequence:
         client.delete_resource(crawled_resource.id)
         assert api.get_resource_ids.call_count == 1
         assert api.delete_resource.call_count == 1
-        api.add_resource.assert_called_once_with(crawled_resource.get_api_resource_post(client.client_id + ":"))
+        api.add_resource.assert_called_once_with(crawled_resource.get_api_resource_post(api_id(client)))
 
     def test_deleted_resource_is_added_without_delete(self, client, api, crawled_resource):
         """A deleted resource can be added again with out a delete call."""
@@ -87,7 +87,7 @@ class TestUpdateSequence:
         assert api.get_resource_ids.call_count == 1
         assert api.delete_resource.call_count == 1
         assert api.add_resource.call_count == 2
-        api.add_resource.assert_called_with(crawled_resource.get_api_resource_post(client.client_id + ":"))
+        api.add_resource.assert_called_with(crawled_resource.get_api_resource_post(api_id(client)))
         
 
     def test_can_delete_resource_twice(self, client, api, crawled_resource):
@@ -151,7 +151,7 @@ class TestUpdateResources:
         """Fetching a resource replaces an existing resource."""
         _id = api_id(client, crawled_resources[0])
         fetch_mock_api.delete_resource.assert_called_once_with(_id)
-        post = crawled_resources[0].get_api_resource_post(client.client_id + ":")
+        post = crawled_resources[0].get_api_resource_post(api_id(client))
         pprint(fetch_mock_api.mock_calls)
         fetch_mock_api.add_resource.assert_any_call(post)
 
@@ -160,7 +160,7 @@ class TestUpdateResources:
         """Fetching a resource adds a new resource."""
         _id = api_id(client, crawled_resources[0])
         for crawled_resource in crawled_resources:
-            post = crawled_resource.get_api_resource_post(client.client_id + ":")
+            post = crawled_resource.get_api_resource_post(api_id(client))
             fetch_mock_api.add_resource.assetr_any_call(post)
 
     def test_update_does_not_remove_resources_from_other_urls(

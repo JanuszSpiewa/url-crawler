@@ -159,6 +159,10 @@ def crawled_resources(resources, resource_urls):
     return [CrawledResource(resource, [url]) for resource, url in zip(resources, resource_urls)]
 
 
+@pytest.fixture
+def sclient(resources_server):
+    """Return a client which is connected to the resources server."""
+    return ResourceClient(resources_server.api)
 
 
 

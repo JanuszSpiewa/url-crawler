@@ -9,6 +9,8 @@ def hash_url(url):
 class ResourceClient:
     """The client to communicate with the ressource server."""
 
+    CLIENT_RESOURCE_ID_DIVISION_STRING = "+"
+
     def __init__(self, api, client_id="url-crawler"):
         """Communicate with the server behind the api.
 
@@ -72,7 +74,7 @@ class ResourceClient:
 
         The client id is prefixed.
         """
-        resource_id = self._client_id + ":" + resource_id
+        resource_id = self._client_id + self.CLIENT_RESOURCE_ID_DIVISION_STRING + resource_id
         if resource_id in self._ids:
             self._api.delete_resource(resource_id)
             self._ids.remove(resource_id)
@@ -83,7 +85,7 @@ class ResourceClient:
 
         This deleted the resource on the server and posts it again.
         """
-        post = crawled_resource.get_api_resource_post(self._client_id + ":")
+        post = crawled_resource.get_api_resource_post(self._client_id + self.CLIENT_RESOURCE_ID_DIVISION_STRING)
         resource_id = post["data"]["id"]
         if resource_id in self._ids:
              self._api.delete_resource(resource_id)
