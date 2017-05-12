@@ -9,6 +9,7 @@ from schul_cloud_url_crawler import ResourceClient, CrawledResource
 import time
 import requests
 from unittest.mock import Mock
+from collections import namedtuple
 
 
 # configuration
@@ -118,6 +119,7 @@ def resources(request):
     """A list of resources."""
     return list(map(resource_with_id, request.param))
 
+RESPONSE = namedtuple("RESPONSE", ["data"])
 
 @pytest.fixture
 def resource_urls(resources, serve):
@@ -133,7 +135,11 @@ def resource_urls_url(resource_urls, serve):
 
 @pytest.fixture
 def api():
-    return Mock()
+    """Return a mock for the api. The api has no resources."""
+    api = Mock()
+    api.get_resource_ids.return_value = RESPONSE([])
+    return api
+    
 
 @pytest.fixture
 def client(api):

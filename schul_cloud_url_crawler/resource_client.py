@@ -23,7 +23,7 @@ class ResourceClient:
     def _ids(self):
         """Return a list of ids on the server."""
         if self.__ids is None:
-            self.__ids = [_id.id for _id in self._api.get_resource_ids().data]
+            self.__ids = set(_id.id for _id in self._api.get_resource_ids().data)
         return self.__ids
 
     fetch = staticmethod(schul_cloud_url_crawler.fetch)
@@ -72,7 +72,11 @@ class ResourceClient:
 
         The client id is prefixed.
         """
-        self._api.delete_resource(self._client_id + ":" + resource_id)
+        resource_id = self._client_id + ":" + resource_id
+        if resource_id in self._ids:
+            self._api.delete_resource(resource_id)
+            self._ids.remove(resource_id)
+        print("delete", self._ids, resource_id)
 
     def update_resource(self, crawled_resource):
         """Update the crawled resource on the server.
@@ -84,5 +88,7 @@ class ResourceClient:
         if resource_id in self._ids:
              self._api.delete_resource(resource_id)
         self._api.add_resource(post)
+        self._ids.add(resource_id)
+        print("update", self._ids)
 
 

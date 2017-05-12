@@ -61,10 +61,48 @@ def test_deleting_resources_not_from_urls(client, api, crawled_resource):
     assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(client.client_id + ":asdad")]
 
 
-# TODO: client updates list of resource ids
-#       delete deletes then
-#       add them
-#       -> add test that tests sequences of delete and add
+class TestUpdateSequence:
+    """Test sequences of update and delete.
+
+    The client holds a list of ids and we test that this list is updated.
+    """
+    def test_deleting_looks_for_existing_ids(self, client, api, crawled_resource):
+        client.delete_resource(crawled_resource.id)
+        api.delete_resource.assert_not_called()
+
+    def test_adding_the_resource_enables_delete(self, client, api, crawled_resource):
+        """When a resource is added it can also be deleted."""
+        client.update_resource(crawled_resource)
+        api.delete_resource.assert_not_called()
+        client.delete_resource(crawled_resource.id)
+        assert api.get_resource_ids.call_count == 1
+        assert api.delete_resource.call_count == 1
+        api.add_resource.assert_called_once_with(crawled_resource.get_api_resource_post(client.client_id + ":"))
+
+    def test_deleted_resource_is_added_without_delete(self, client, api, crawled_resource):
+        """A deleted resource can be added again with out a delete call."""
+        client.update_resource(crawled_resource)
+        client.delete_resource(crawled_resource.id)
+        client.update_resource(crawled_resource)
+        assert api.get_resource_ids.call_count == 1
+        assert api.delete_resource.call_count == 1
+        assert api.add_resource.call_count == 2
+        api.add_resource.assert_called_with(crawled_resource.get_api_resource_post(client.client_id + ":"))
+        
+
+    def test_can_delete_resource_twice(self, client, api, crawled_resource):
+        """An added resource can be deleted several times with only one call to the api."""
+        client.update_resource(crawled_resource)
+        client.delete_resource(crawled_resource.id)
+        client.delete_resource(crawled_resource.id)
+        assert api.get_resource_ids.call_count == 1
+        assert api.delete_resource.call_count == 1
+
+
+# TODO: Test error case: delete fails
+#                        add fails
+#                        resource ids fails
+
 
 class TestUpdateResources:
     """Test the update functionality"""
@@ -80,7 +118,6 @@ class TestUpdateResources:
 
     def test_update_calls_fetch(self, client, resource_urls, api):
         """The update function uses the predefined fetch function."""
-        api.get_resource_ids.return_value = RESPONSE([])
         client.fetch = 	mock_fetch = Mock()
         client.update(resource_urls)
         assert len(mock_fetch.mock_calls) == 1
