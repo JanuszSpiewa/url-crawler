@@ -78,7 +78,8 @@ def serve(app, base_url):
 _resource_id = 0
 
 def resource_with_id(resource):
-    """Set the id for a resource."""
+    """Set the id for a resource to make it unique
+    even if there is only oe test resource."""
     global _resource_id
     _resource_id += 1
     resource = resource.copy()
@@ -108,10 +109,10 @@ def resource_path(request):
 
 
 @pytest.fixture(params=[
-        VALID_RESOURCES,       # all valid resources
-        [VALID_RESOURCES[0]],  # one valid resource
-        VALID_RESOURCES[::-2], # every second resource in reversed order
-        []                       # no resources
+        VALID_RESOURCES,            # all valid resources
+        [VALID_RESOURCES[0]],       # one valid resource
+        VALID_RESOURCES[::-2] * 10, # every second resource in reversed order
+        []                          # no resources
     ])
 def resources(request):
     """A list of resources."""
@@ -144,4 +145,15 @@ def client(api):
 def crawled_resource(resource, resource_path):
     """Return a crawled resource."""
     return CrawledResource(resource, resource_path)
+
+
+@pytest.fixture
+def crawled_resources(resources, resource_urls):
+    """Return a list of crawled resources."""
+    return [CrawledResource(resource, [url]) for resource, url in zip(resources, resource_urls)]
+
+
+
+
+
 
