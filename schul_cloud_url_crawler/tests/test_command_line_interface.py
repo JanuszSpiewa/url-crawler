@@ -142,12 +142,17 @@ class TestOptions:
         mock_client.assert_main_calls = assert_main_calls
         return mock_client
 
-    def test_the_default_id(self, mock_client):
+    @mark.parametrize("_id,args", [
+            ("url-crawler", []),
+            ("asd", ["--id=asd"]),
+            ("url-crawler-2", ["--id=url-crawler-2"]),
+        ])
+    def test_the__id(self, mock_client, _id, args):
         """Make sure that the default id is url-crawler."""
-        main(args=["asdasda"], standalone_mode=False)
+        main(args=["asdasda"] + args, standalone_mode=False)
         assert mock_client.call_count == 1
         arguments = mock_client.mock_calls[0][1]
-        assert arguments[1] == "url-crawler"
+        assert arguments[1] == _id
 
     def test_only_update_is_default(self, mock_client):
         """By default only the update function is called."""
@@ -160,8 +165,10 @@ class TestOptions:
     @mark.parametrize("urls", [["asd", "a"], [], ["asda", "wre", "rwfe"]])
     def test_delete_not_in_urls(self, mock_client, urls):
         """--delete-not-mentioned deletes these resources before crawling."""
-        mock_client.assert_main_calls(["--delete-not-mentioned", "server-url"] + urls,
-                                      [call.delete_resources_not_from(urls), call.update([])])
+        mock_client.assert_main_calls(
+           ["--delete-not-mentioned", "server-url"] + urls,
+           [call.delete_resources_not_from(urls), call.update(urls)])
+
 
 
 
