@@ -47,7 +47,7 @@ def test_deleting_resources_from_urls(client, api, crawled_resource):
     id2 = api_id(client, ID("asdsadad"))
     api.get_resource_ids.return_value = RESPONSE([
         ID(id1), ID(id2), ID("asdasdasddsa")])
-    client.delete_resources_from([crawled_resource.origin_url])
+    client.delete_resources_from([crawled_resource.origin_url, "gahksagdagksdgh"])
     assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(id1)]
 
 
@@ -56,10 +56,11 @@ def test_deleting_resources_not_from_urls(client, api, crawled_resource):
     client id and the hash of the url.
     """
     id1 = api_id(client, crawled_resource)
+    id12 = api_id(client, crawled_resource) + ".123"
     id2 = api_id(client, ID("asdsadad"))
     api.get_resource_ids.return_value = RESPONSE([
-        ID(id1), ID(id2), ID("asdasdasddsa")])
-    client.delete_resources_not_from([crawled_resource.origin_url])
+        ID(id1), ID(id2), ID(id12), ID("asdasdasddsa")])
+    client.delete_resources_not_from([crawled_resource.origin_url, "asdasdsad"])
     assert api.mock_calls == [call.get_resource_ids(), call.delete_resource(id2)]
 
 

@@ -29,9 +29,10 @@ Return codes:
 - 8 basic authentication needs a username and a password divided by :
 
 """
+import schul_cloud_url_crawler.resource_client as resource_client
 from schul_cloud_url_crawler.cli import main
 import schul_cloud_resources_api_v1.auth as auth
-from unittest.mock import Mock
+from unittest.mock import Mock, call
 from pytest import mark, raises, fixture
 import click
 
@@ -121,4 +122,47 @@ def test_can_not_reach_the_server(raisesError):
     @raisesError(6, "The resource server could not be reached.")
     def main_error():
         main(args=["https://localhost:80/"])
+
+
+
+
+class TestOptions:
+    """Test the options --delete-all, --delete-not-updated and --id."""
+
+    @fixture
+    def mock_client(self, monkeypatch):
+        """Return a mock which is used for authentication."""
+        mock_client = Mock()
+        monkeypatch.setattr(resource_client, "ResourceClient", mock_client)
+        def assert_main_calls(args, expected_calls):
+            """Make sure the calls to the client are expected."""
+            main(args=args, standalone_mode=False)
+            calls = mock_client().mock_calls
+            assert calls == expected_calls
+        mock_client.assert_main_calls = assert_main_calls
+        return mock_client
+
+    def test_the_default_id(self, mock_client):
+        """Make sure that the default id is url-crawler."""
+        main(args=["asdasda"], standalone_mode=False)
+        assert mock_client.call_count == 1
+        arguments = mock_client.mock_calls[0][1]
+        assert arguments[1] == "url-crawler"
+
+    def test_only_update_is_default(self, mock_client):
+        """By default only the update function is called."""
+        mock_client.assert_main_calls(["server-url"], [call.update([])])
+
+    def test_delete_all(self, mock_client):
+        """--delete-all deletes all resources before the crawling."""
+        mock_client.assert_main_calls(["--delete-all", "server-url"], [call.delete_resources(), call.update([])])
+
+    @mark.parametrize("urls", [["asd", "a"], [], ["asda", "wre", "rwfe"]])
+    def test_delete_not_in_urls(self, mock_client, urls):
+        """--delete-not-mentioned deletes these resources before crawling."""
+        mock_client.assert_main_calls(["--delete-not-mentioned", "server-url"] + urls,
+                                      [call.delete_resources_not_from(urls), call.update([])])
+
+
+
 

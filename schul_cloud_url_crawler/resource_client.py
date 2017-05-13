@@ -46,7 +46,7 @@ class ResourceClient:
         """Delete all resources which were crawled from these urls."""
         url_hashes = list(map(hash_url, urls))
         for _id in self._ids:
-            if all(h in _id for h in url_hashes):
+            if any(h in _id for h in url_hashes):
                 self._api.delete_resource(_id)
 
 
@@ -54,7 +54,7 @@ class ResourceClient:
         """Delete all resources which do not originate from the urls."""
         url_hashes = list(map(hash_url, urls))
         for _id in self._ids:
-            if any(h not in _id for h in url_hashes):
+            if all(h not in _id for h in url_hashes):
                 self._api.delete_resource(_id)
 
     def update(self, urls):

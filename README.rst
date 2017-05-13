@@ -16,7 +16,7 @@ Purpose
 
 The purpose of this crawler is:
 
-- We can provide tests data to the API.
+- We can provide test data to the API.
 - It can crawl ressources which are not active and cannot post.
 - Other crawl services can use this crawler to upload their conversions.
 - It has the full crawler logic but does not transform into other formats.
