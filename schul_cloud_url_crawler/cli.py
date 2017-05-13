@@ -15,6 +15,7 @@ from schul_cloud_resources_api_v1.rest import ApiException
 import schul_cloud_resources_api_v1.auth as auth
 from urllib3.exceptions import MaxRetryError
 import traceback
+import sys
 
 UnReachable = (MaxRetryError,)
 
@@ -29,7 +30,9 @@ error_messages = {
 
 def error(return_code):
     """Raise an error and explain it."""
-    traceback.print_exc()
+    ty, err, tb = sys.exc_info()
+    if err:
+        traceback.print_exception(ty, err, tb)
     click.echo("Error {}: {}".format(return_code, error_messages[return_code]))
     exit(return_code)
 
