@@ -1,0 +1,4 @@
+# pip3 install pip-tools to generate fixed packages
+requests
+click
+schul-cloud-resources-api-v1
