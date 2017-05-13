@@ -39,13 +39,14 @@ import click
 @fixture
 def raisesError(monkeypatch):
     """Return a function that can test for an error code and a description."""
+    mock = Mock()
+    monkeypatch.setattr(click, "echo", mock)
     def assertRaisesSystemExit(exit_code, description):
+        text = "Error {}: {}".format(exit_code, description)
         def wrap(function):
-            text = "Error {}: {}".format(code, descrption)
-            monkeypatch.setattr(click, "echo", Mock())
             with raises(SystemExit) as error:
                 function()
-            assert error.value.code == code
+            assert error.value.code == exit_code
             mock.assert_called_with(text)
         return wrap
     return assertRaisesSystemExit
@@ -85,28 +86,30 @@ class TestAuthentication:
         main(args=["--apikey={}".format(key), resources_server.url], standalone_mode=False)
         mock_auth.api_key.assert_called_once_with(key)
 
-'''
     @mark.parametrize("params", [
-            ["--basic=asd:asd", "--basic=asd:asda"],
-            ["--apikey=asflajkd", "--basic=asd:asd"],
-            ["--apikey=asflajkd", "--apikey=asflajkd"],
+            ["--apikey=asflajkd", "--basic=asd:aasd"],
+            ["--apikey=asflajkd", "--basic="],
+            ["--apikey=", "--basic=asd:aasd"],
         ])
     def test_can_not_use_apikey_and_basic_authentication_at_the_same_time(
-            self, raisesError, params, url):
+            self, raisesError, params, resources_server):
         """When two authentication mechanisms are used, the return code is"""
         @raisesError(7, "You can only provide one authentication mechanism with --basic and --apikey.")
         def main_error():
-            main(args=params + [url])
+            main(args=params + [resources_server.url])
 
-    @mark.parametrize("invalid_basic", ["--basic=asdasd", "--basic="])
-    def test_basic_authentication_needs_a_password(self, invalid_basic, url, raisesError):
+
+
+    @mark.parametrize("invalid_basic", ["--basic=", "--basic=asdasd"])
+    def test_basic_authentication_needs_a_password(
+            self, invalid_basic, raisesError, resources_server):
         @raisesError(8, "Basic authentication requires a username and a password divided by \":\". Example: --basic=user:password")
         def main_error():
-            main(args=[invalid_basic, url])
+            main(args=[invalid_basic, resources_server.url])
 
     @mark.parametrize("code,params,message", [
             (3, ["--basic=gdjfsd:jshfdkhshd"], "The resources server could be reached but basic authentication failed."),
-            (4, ["--basic=gdjfsd:jshfdkhshd"], "The resources server could be reached but API-key authentication failed."),
+            (4, ["--apikey=gdjfsdjshfdkhshd"], "The resources server could be reached but API-key authentication failed."),
             (5, [], "The resources server could be reached but it requires authentication with --basic or --apikey."),
         ])
     def test_authentication_failure(self, url401, code, params, message, raisesError):
@@ -115,6 +118,7 @@ class TestAuthentication:
         def main_error():
             main(args=params + [url401])
     
+'''
 
 def test_can_not_reach_the_server(raisesError):
     """Test what happens if the api could not be reached."""
