@@ -61,6 +61,7 @@ def main(api, urls=[], basic=None, apikey=None):
         resource_client.update(urls)
     except ApiException as err:
         if err.status == 401:
+            click.echo(err.body)
             error(auth_error)
         raise
 
