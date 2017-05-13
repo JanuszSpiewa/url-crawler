@@ -169,6 +169,13 @@ class TestOptions:
            ["--delete-not-mentioned", "server-url"] + urls,
            [call.delete_resources_not_from(urls), call.update(urls)])
 
+#    @mark.parametrize("urls", [["asd", "a"], [], ["asda", "wre", "rwfe"]])
+#    def test_delete_not_in_urls(self, mock_client, urls):
+#        """--delete deletes all resources from the urls and does not crawl them."""
+#        mock_client.assert_main_calls(
+#           ["--delete", "server-url"] + urls,
+#           [call.delete_resources_from(urls)])
+
 
 
 
