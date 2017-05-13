@@ -13,11 +13,15 @@ from schul_cloud_url_crawler.resource_client import ResourceClient
 from schul_cloud_resources_api_v1 import ApiClient, ResourceApi
 from schul_cloud_resources_api_v1.rest import ApiException
 import schul_cloud_resources_api_v1.auth as auth
+from urllib3.exceptions import MaxRetryError
+
+UnReachable = (MaxRetryError,)
 
 error_messages = {
     3: "The resources server could be reached but basic authentication failed.",
     4: "The resources server could be reached but API-key authentication failed.",
     5: "The resources server could be reached but it requires authentication with --basic or --apikey.",
+    6: "The resource server could not be reached.",
     7: "You can only provide one authentication mechanism with --basic and --apikey.",
     8: "Basic authentication requires a username and a password divided by \":\". Example: --basic=user:password",
 }
@@ -64,4 +68,5 @@ def main(api, urls=[], basic=None, apikey=None):
             click.echo(err.body)
             error(auth_error)
         raise
-
+    except UnReachable:
+        error(6)

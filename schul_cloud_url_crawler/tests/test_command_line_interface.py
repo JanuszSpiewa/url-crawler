@@ -63,7 +63,6 @@ class TestAuthentication:
         monkeypatch.setattr(auth, "none", mock_auth.none)
         monkeypatch.setattr(auth, "api_key", mock_auth.api_key)
         return mock_auth
-        
 
     def test_no_authentication_is_default(self, mock_auth, resources_server):
         """Test that a call to auth.none exits."""
@@ -98,8 +97,6 @@ class TestAuthentication:
         def main_error():
             main(args=params + [resources_server.url])
 
-
-
     @mark.parametrize("invalid_basic", ["--basic=", "--basic=asdasd"])
     def test_basic_authentication_needs_a_password(
             self, invalid_basic, raisesError, resources_server):
@@ -118,14 +115,10 @@ class TestAuthentication:
         def main_error():
             main(args=params + [url401])
     
-'''
 
 def test_can_not_reach_the_server(raisesError):
     """Test what happens if the api could not be reached."""
-        @raisesError(6, "The resource server could not be reached.")
-        def main_error():
-            main(args=["https://localhost:80/"])
+    @raisesError(6, "The resource server could not be reached.")
+    def main_error():
+        main(args=["https://localhost:80/"])
 
-
-
-'''
