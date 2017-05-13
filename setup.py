@@ -35,6 +35,9 @@ setup(
     install_requires=REQUIRES,
     packages=find_packages(),
     include_package_data=True,
-    long_description=open(os.path.join(HERE, "README.rst")).read()
-)
+    long_description=open(os.path.join(HERE, "README.rst")).read(),
+    entry_points='''
+        [console_scripts]
+        schul-cloud-url-crawler=schul_cloud_url_crawler.cli:main
+    ''')
 
