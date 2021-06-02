@@ -4,17 +4,43 @@
 #
 #    pip-compile --output-file test-requirements.txt test-requirements.in
 #
-appdirs==1.4.3            # via schul-cloud-resources-server-tests
+appdirs==1.4.3
+    # via schul-cloud-resources-server-tests
 bottle==0.12.13
-certifi==2017.4.17        # via schul-cloud-resources-api-v1
-jsonschema==2.6.0         # via schul-cloud-resources-api-v1, schul-cloud-resources-server-tests
-packaging==16.8           # via schul-cloud-resources-server-tests
-py==1.4.33                # via pytest
-pyparsing==2.2.0          # via packaging, schul-cloud-resources-server-tests
+    # via
+    #   -r test-requirements.in
+    #   schul-cloud-resources-server-tests
+certifi==2017.4.17
+    # via schul-cloud-resources-api-v1
+jsonschema==2.6.0
+    # via
+    #   schul-cloud-resources-api-v1
+    #   schul-cloud-resources-server-tests
+packaging==16.8
+    # via schul-cloud-resources-server-tests
+py==1.4.33
+    # via pytest
+pyparsing==2.2.0
+    # via
+    #   packaging
+    #   schul-cloud-resources-server-tests
 pytest==3.0.7
-python-dateutil==2.6.0    # via schul-cloud-resources-api-v1
-requests==2.13.0          # via schul-cloud-resources-server-tests
-schul-cloud-resources-api-v1==1.0.0.85  # via schul-cloud-resources-server-tests
+    # via
+    #   -r test-requirements.in
+    #   schul-cloud-resources-server-tests
+python-dateutil==2.6.0
+    # via schul-cloud-resources-api-v1
+requests==2.13.0
+    # via schul-cloud-resources-server-tests
+schul-cloud-resources-api-v1==1.0.0.85
+    # via schul-cloud-resources-server-tests
 schul-cloud-resources-server-tests==1.0.46
-six==1.10.0               # via packaging, python-dateutil, schul-cloud-resources-api-v1, schul-cloud-resources-server-tests
-urllib3==1.21.1           # via schul-cloud-resources-api-v1
+    # via -r test-requirements.in
+six==1.10.0
+    # via
+    #   packaging
+    #   python-dateutil
+    #   schul-cloud-resources-api-v1
+    #   schul-cloud-resources-server-tests
+urllib3==1.26.5
+    # via schul-cloud-resources-api-v1
